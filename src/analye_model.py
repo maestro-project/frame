@@ -2,7 +2,7 @@ import os, sys
 script_dir = os.path.dirname(__file__)
 module_path = script_dir
 for _ in range(5):
-    if os.path.basename(module_path) =='roofline_dnn':
+    if os.path.basename(module_path) =='frame':
         break
     module_path = os.path.abspath(os.path.join(module_path, '../'))
     if module_path not in sys.path:

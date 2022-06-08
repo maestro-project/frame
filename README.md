@@ -1,11 +1,11 @@
-# Roofline Model for DNN Workload and Accelerator 
+# FRAME: <u>F</u>ast <u>R</u>oofline <u>A</u>nalytical <u>M</u>odeling and <u>E</u>stimation
 This is a roofline cost model for DNN accelerators. We support CNNs, MLPs, and Transformers workload.
 
 # What it does
 * Given DNN accelerator system information (using the `System` class in `src/system.py`), where you can specify PE array shape (mxu_shape), on-chip BWs, off-chip BWs, etcs.
 * Given DNN workload (e.g., `model='vgg16'`)
 
-``roofline-dnn`` generate a table of layer-wise latency and memory usage information as well as a roofline figure, as shown in the following
+``FRAME`` generate a table of layer-wise latency and memory usage information as well as a roofline figure, as shown in the following
 ![img.png](images/img.png)
 ![img_1.png](images/img_1.png)
 ---------
@@ -14,14 +14,14 @@ This is a roofline cost model for DNN accelerators. We support CNNs, MLPs, and T
 ### Interactive Design Space Exploration
 You are welcome to play with it by [``notebook/dnn_accel_playground.ipynb``](notebook/dnn_accel_playground.ipynb).
 
-We also provide a colab version for quick trial [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/maestro-project/roofline-dnn/blob/master/notebook/dnn_accel_playground-run-on-colab.ipynb)
+We also provide a colab version for quick trial [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/maestro-project/frame/blob/master/notebook/dnn_accel_playground-run-on-colab.ipynb)
 ### How to plug into you experiments
 Use the ``analyze_model``. 
 ```python
 model_df, _ = analyze_model()
 ```
 ``model_df`` contains a layer-by-layer analysis results.
-The paramaeters of ``analyze_model``are described as follows.
+The parameters of ``analyze_model``are described as follows.
 
 
 --------------
@@ -76,10 +76,10 @@ The paramaeters of ``analyze_model``are described as follows.
 
 ### Citation
 ```
-@software{rooflinednn,
+@software{frame,
   author = {Kao, Sheng-Chun and Subramanian, Suvinay and Bambhaniya, Abhimanyu and Krishna, Tushar},
-  title = {{Roofline-DNN: Roofline analysis of DNN accelerator}},
-  url = {https://github.com/maestro-project/roofline-dnn},
+  title = {{FRAME: Fast Roofline Analytical Modeling and Estimation}},
+  url = {https://github.com/maestro-project/frame},
   version = {1.0.0},
   year = {2022}
 }

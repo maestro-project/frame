@@ -6,7 +6,7 @@ for _ in range(5):
     module_path = os.path.abspath(os.path.join(module_path, '../'))
     if module_path not in sys.path:
         sys.path.insert(0,module_path)
-    if os.path.basename(module_path) =='roofline_dnn':
+    if os.path.basename(module_path) =='frame':
         break
 from src.unit import Unit
 from src.operators import *
