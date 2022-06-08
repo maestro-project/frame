@@ -81,51 +81,46 @@ def get_configs(name):
         H = 16
         Df = 4*D
     return H, D, Df
+def create_sparsity_file(name='BERT', method='vanilla', data_path='./',  density=(1,1,1), spattn_density=1/16, custom_sparsity=False):
+    sparsity_file_path = os.path.join(data_path,"sparsity")
+    if custom_sparsity and os.path.exists(os.path.join(sparsity_file_path, name + '.csv')):
+        return
+    model_path = os.path.join(data_path,"model")
+    num_layers = len(pd.read_csv(os.path.join(model_path, name + '.csv')))
+    densities = np.ones((num_layers, 3), dtype=float) * np.array(density)
+    if method == 'sparse':
+        densities[3][2] = spattn_density  # logit output
+        densities[4][0] = spattn_density
+    df = pd.DataFrame(densities,columns=['I', 'W', 'O'])
+    df.to_csv(os.path.join(sparsity_file_path, name + '.csv'),  header=True, index=None)
 
-def create_model(seq_len, name='BERT', data_path='./', method='vanilla', low_rank_ratio=1/8, m_ratio=4, spattn_density=1/16, density=(1.0,1.0,1.0), special_layer_only=False, to_tensorized=False, tensorized_kernel=128):
+
+def create_model(seq_len, name='BERT',  data_path='./', method='vanilla', low_rank_ratio=1/8, m_ratio=4, to_tensorized=False,
+                 tensorized_kernel=128):
 
     model_path = os.path.join(data_path,"model")
-    sparsity_file_path = os.path.join(data_path,"sparsity")
     H, D, Df = get_configs(name)
     M = seq_len
     N = seq_len
     if method == 'vanilla':
         layers = get_lanugage_model(H, M, N, D, Df)
-        special_layers = [3, 4]
     elif method == 'lowrank':
         rank = ceil(N*low_rank_ratio)
         layers = get_lanugage_model_low_rank(H, M, N, D, Df, rank)
-        special_layers = [3, 4, 5, 6]
     elif method == 'kernel':
         layers = get_lanugage_model_kernel(H, M, N, D, Df, m_ratio)
-        special_layers = [3, 4, 5, 6]
     elif method == 'sparse':
         layers = get_lanugage_model(H, M, N, D, Df)
-        special_layers = [3, 4]
     if to_tensorized:
         layers = tensorized_ff1_ff2(layers, tensorized_kernel)
-
-
-
     name = name + f'_{method}'
-    if density:
-        densities = np.ones((len(layers), 3), dtype=float) * np.array(density)
-        densities[special_layers] = 1.0
-        if method == 'sparse':
-            densities[3][2] = spattn_density  # logit output
-            densities[4][0] = spattn_density
-        if special_layer_only:
-            densities = densities[special_layers]
-        df = pd.DataFrame(densities,columns=['I', 'W', 'O'])
-        df.to_csv(os.path.join(sparsity_file_path, name + '.csv'),  header=True, index=None)
-
-    if special_layer_only:
-        layers = np.array(layers)[special_layers]
     df = pd.DataFrame(layers, columns=['M', 'N', 'D', 'H', 'Z', 'Z', 'T'])
     df.to_csv(os.path.join(model_path, name + '.csv'),  header=True, index=None)
+    return df
 
 
 if __name__ == '__main__':
     model = 'BERT'
     model_path = os.path.join('../',"data/model/language")
     create_model(256, name=model, model_path=model_path)
+    create_sparsity_file('BERT_vanilla')

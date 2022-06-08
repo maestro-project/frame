@@ -30,16 +30,16 @@ def get_summary_table(df):
     attn_idx = get_attn_index(df)
     total_parameters = np.sum(df['Input_w (MB)']) - sum([df.loc[i, 'Input_w (MB)'] for i in attn_idx])
     max_memory_footprint = max([df.loc[i, 'Input_a (MB)'] + df.loc[i, 'Input_w (MB)'] + df.loc[i, 'Output (MB)'] for i in range(len(df))])
-    total_energy = np.sum(df['Total energy (uJ)'])
-    total_original_energy = np.sum(df['MXU energy (uJ)'])
-    saved_energy_rate = (total_original_energy-total_energy)/total_original_energy
+    # total_energy = np.sum(df['Total energy (uJ)'])
+    # total_original_energy = np.sum(df['MXU energy (uJ)'])
+    # saved_energy_rate = (total_original_energy-total_energy)/total_original_energy
     ret = {
         'Latency (msec)': [total_latencies],
         'Cycles': [total_cycles],
         'Parameters  (MB)': [total_parameters],
         'On-chip Memory Footprint (MB)': [max_memory_footprint],
-        'Energy  (uJ)': [total_energy],
-        'Saved energy (%)':[saved_energy_rate*100],
+        # 'Energy  (uJ)': [total_energy],
+        # 'Saved energy (%)':[saved_energy_rate*100],
     }
     return pd.DataFrame.from_dict(ret)
 
@@ -61,6 +61,33 @@ def analysis_model(model_dims, system, unit, densities):
     # df.style.format('{:.2f}')
     # df.to_csv('output/trial.csv')
     return df
+
+def analyze_model( use_attn_model=True,  custom_model='alexnet', attn_model='XLM', attn_method='vanilla', batch_size=1,
+                   low_rank_ratio=0.1, m_ratio=4, custom_sparsity=False,density_input=1, density_weight=1, density_output=1,
+                   spattn_density=0.1, seq_len=512, onchip_mem_bw=9000, offchip_mem_bw=900, on_chip_mem_size=float('Inf'),
+                   off_chip_mem_size=float('Inf'), compute_efficiency=1, memory_efficiency=1, use_flops=True, flops=123.20768,
+                   mxu_instance=4, mxu_height=128, mxu_width=128, frequency=940, bits='bf16', skip_compute_on_noopt_output=True,
+                   compress_mem=False, skip_compute=False):
+    unit = Unit()
+    mxu_shape = [mxu_instance, mxu_height, mxu_width] if not use_flops else None
+    data_path = os.path.join(module_path,"data")
+    model_path = os.path.join(data_path,"model")
+    if use_attn_model:
+        model = attn_model
+        df = create_model(seq_len, name=model, data_path=data_path, low_rank_ratio=low_rank_ratio,
+                          m_ratio=m_ratio, method=attn_method,)
+        model = model + f'_{attn_method}'
+    else:
+        model = custom_model
+    create_sparsity_file(name=model, method=attn_method, data_path=data_path,  density=(density_input,density_weight,density_output), spattn_density=spattn_density, custom_sparsity=custom_sparsity)
+    system = System(unit, mxu_shape = mxu_shape, compress_mem=compress_mem, skip_compute=skip_compute, onchip_mem_bw=onchip_mem_bw,
+                    offchip_mem_bw=offchip_mem_bw, on_chip_mem_size=on_chip_mem_size,off_chip_mem_size=off_chip_mem_size,
+                    compute_efficiency=compute_efficiency, memory_efficiency=memory_efficiency, flops=flops,
+                    frequency=frequency, bits=bits, skip_compute_on_noopt_output=skip_compute_on_noopt_output)
+    model_df = get_model_df(model, system, unit, batch_size, data_path)
+
+    return model_df, (system, unit)
+
 
 
 def get_model_df(model, system, unit, batch_size=1, data_path='./', sparse=True):
@@ -91,9 +118,7 @@ def get_model_df(model, system, unit, batch_size=1, data_path='./', sparse=True)
 
 if __name__ == '__main__':
 
-    # model = 'example'
-    # data_path = os.path.join(module_path,"data/")
-    #
+
 
     method = 'sparse'
     low_rank_ratio = 1/8
@@ -106,11 +131,12 @@ if __name__ == '__main__':
     system = System(unit, mxu_shape = [4, 128, 128], compress_mem=True, skip_compute=True, skip_compute_on_noopt_output=True)
     data_path = os.path.join(module_path,"data")
     model_path = os.path.join(data_path,"model")
-    create_model(seq_len, name=model, data_path=data_path, density=(1,1,1), low_rank_ratio=low_rank_ratio,
-                 m_ratio=m_ratio, spattn_density=spattn_density, method=method, special_layer_only=False,
+    create_model(seq_len, name=model, data_path=data_path, low_rank_ratio=low_rank_ratio,
+                 m_ratio=m_ratio, method=method,
                  to_tensorized=True)
     model_name = model + f'_{method}'
-
+    create_sparsity_file(model_name,data_path=data_path,)
+    # model_name = 'resnet18'
     model_df = get_model_df(model_name, system, unit, batch_size, data_path)
     get_summary_table(model_df)
     print(model_df)
