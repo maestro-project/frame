@@ -97,8 +97,6 @@ def read_model(model,  data_path='./',):
 
 def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=None, model_df=None):
     m_file_path = os.path.join(data_path,"model")
-    print(m_file_path)
-    print(model_df)
     sparsity_file_path = os.path.join(data_path,"sparsity")
     m_file = os.path.join(m_file_path, model + ".csv")
     density_file = os.path.join(sparsity_file_path, model + ".csv")

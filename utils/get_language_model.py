@@ -115,7 +115,6 @@ def create_model(seq_len, name='BERT',  data_path='./', method='vanilla', low_ra
     name = name + f'_{method}'
     df = pd.DataFrame(layers, columns=['M', 'N', 'D', 'H', 'Z', 'Z', 'T'])
     if os.path.exists(model_path):
-        print(model_path)
         df.to_csv(os.path.join(model_path, name + '.csv'),  header=True, index=None)
     return df
 
