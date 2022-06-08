@@ -98,7 +98,8 @@ def create_sparsity_file(name='BERT', method='vanilla', data_path='./',  density
 def create_model(seq_len, name='BERT',  data_path='./', method='vanilla', low_rank_ratio=1/8, m_ratio=4, to_tensorized=False,
                  tensorized_kernel=128):
 
-    model_path = os.path.join(data_path,"model")
+    model_path = os.path.abspath(os.path.join(data_path,"model"))
+    print(model_path)
     H, D, Df = get_configs(name)
     M = seq_len
     N = seq_len
