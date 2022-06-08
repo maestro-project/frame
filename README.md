@@ -76,7 +76,7 @@ The paramaeters of ``analyze_model``are described as follows.
 
 ### Citation
 ```
-@software{Lisa_My_Research_Software_2017,
+@software{rooflinednn,
   author = {Kao, Sheng-Chun and Subramanian, Suvinay and Bambhaniya, Abhimanyu and Krishna, Tushar},
   title = {{Roofline-DNN: Roofline analysis of DNN accelerator}},
   url = {https://github.com/maestro-project/roofline-dnn},
