@@ -92,14 +92,16 @@ def create_sparsity_file(name='BERT', method='vanilla', data_path='./',  density
         densities[3][2] = spattn_density  # logit output
         densities[4][0] = spattn_density
     df = pd.DataFrame(densities,columns=['I', 'W', 'O'])
-    df.to_csv(os.path.join(sparsity_file_path, name + '.csv'),  header=True, index=None)
+    try:
+        df.to_csv(os.path.join(sparsity_file_path, name + '.csv'),  header=True, index=None)
+    except:
+        pass
     return df
 
 def create_model(seq_len, name='BERT',  data_path='./', method='vanilla', low_rank_ratio=1/8, m_ratio=4, to_tensorized=False,
                  tensorized_kernel=128):
 
-    model_path = os.path.abspath(os.path.join(data_path,"model"))
-    print(model_path)
+    model_path = os.path.join(data_path,"model")
     H, D, Df = get_configs(name)
     M = seq_len
     N = seq_len
@@ -116,7 +118,10 @@ def create_model(seq_len, name='BERT',  data_path='./', method='vanilla', low_ra
         layers = tensorized_ff1_ff2(layers, tensorized_kernel)
     name = name + f'_{method}'
     df = pd.DataFrame(layers, columns=['M', 'N', 'D', 'H', 'Z', 'Z', 'T'])
-    df.to_csv(os.path.join(model_path, name + '.csv'),  header=True, index=None)
+    try:
+        df.to_csv(os.path.join(model_path, name + '.csv'),  header=True, index=None)
+    except:
+        pass
     return df
 
 
