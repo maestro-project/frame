@@ -70,7 +70,7 @@ def analyze_model( use_attn_model=True,  custom_model='alexnet', attn_model='XLM
                    compress_mem=False, skip_compute=False):
     unit = Unit()
     mxu_shape = [mxu_instance, mxu_height, mxu_width] if not use_flops else None
-    data_path = os.path.join(module_path,"data")
+    data_path = os.path.abspath(os.path.join(module_path,"data"))
     model_path = os.path.join(data_path,"model")
     if use_attn_model:
         model = attn_model
