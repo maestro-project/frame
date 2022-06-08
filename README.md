@@ -14,6 +14,7 @@ This is a roofline cost model for DNN accelerators. We support CNNs, MLPs, and T
 ### Interactive Design Space Exploration
 You are welcome to play with it by [``notebook/dnn_accel_playground.ipynb``](notebook/dnn_accel_playground.ipynb).
 
+We also provide a colab version for quick trial [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/maestro-project/roofline-dnn/blob/master/notebook/dnn_accel_playground-run-on-colab.ipynb)
 ### How to plug into you experiments
 Use the ``analyze_model``. 
 ```python
