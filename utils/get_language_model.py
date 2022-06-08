@@ -93,7 +93,7 @@ def create_sparsity_file(name='BERT', method='vanilla', data_path='./',  density
         densities[4][0] = spattn_density
     df = pd.DataFrame(densities,columns=['I', 'W', 'O'])
     df.to_csv(os.path.join(sparsity_file_path, name + '.csv'),  header=True, index=None)
-
+    return df
 
 def create_model(seq_len, name='BERT',  data_path='./', method='vanilla', low_rank_ratio=1/8, m_ratio=4, to_tensorized=False,
                  tensorized_kernel=128):

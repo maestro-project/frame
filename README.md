@@ -21,6 +21,8 @@ model_df, _ = analyze_model()
 ```
 ``model_df`` contains a layer-by-layer analysis results.
 The paramaeters of ``analyze_model``are described as follows.
+
+
 --------------
 
 # Algorithmic Parameters
@@ -65,7 +67,7 @@ The paramaeters of ``analyze_model``are described as follows.
     * These three parameters will creste ``mxu_instance`` of PE arrays. Each PE array has``mxu_height`` x ``mxu_width`` PEs. 
   
 ------
-### Contribution
+### Contributors
 * Sheng-Chun (Felix) Kao
 * Suvinay Subramanian 
 * Abhimanyu Bambhaniya

@@ -74,40 +74,50 @@ def analyze_model( use_attn_model=True,  custom_model='alexnet', attn_model='XLM
     model_path = os.path.join(data_path,"model")
     if use_attn_model:
         model = attn_model
-        df = create_model(seq_len, name=model, data_path=data_path, low_rank_ratio=low_rank_ratio,
+        model_df = create_model(seq_len, name=model, data_path=data_path, low_rank_ratio=low_rank_ratio,
                           m_ratio=m_ratio, method=attn_method,)
         model = model + f'_{attn_method}'
     else:
         model = custom_model
-    create_sparsity_file(name=model, method=attn_method, data_path=data_path,  density=(density_input,density_weight,density_output), spattn_density=spattn_density, custom_sparsity=custom_sparsity)
+        model_df = read_model(model, data_path=data_path)
+    sparsity_df = create_sparsity_file(name=model, method=attn_method, data_path=data_path,  density=(density_input,density_weight,density_output), spattn_density=spattn_density, custom_sparsity=custom_sparsity)
     system = System(unit, mxu_shape = mxu_shape, compress_mem=compress_mem, skip_compute=skip_compute, onchip_mem_bw=onchip_mem_bw,
                     offchip_mem_bw=offchip_mem_bw, on_chip_mem_size=on_chip_mem_size,off_chip_mem_size=off_chip_mem_size,
                     compute_efficiency=compute_efficiency, memory_efficiency=memory_efficiency, flops=flops,
                     frequency=frequency, bits=bits, skip_compute_on_noopt_output=skip_compute_on_noopt_output)
-    model_df = get_model_df(model, system, unit, batch_size, data_path)
+    model_df = get_model_df(model, system, unit, batch_size, data_path, sparsity_df=sparsity_df, model_df=model_df )
 
     return model_df, (system, unit)
 
+def read_model(model,  data_path='./',):
+    m_file_path = os.path.join(data_path,"model")
+    m_file = os.path.join(m_file_path, model + ".csv")
+    df = pd.read_csv(m_file)
+    return df
 
-
-def get_model_df(model, system, unit, batch_size=1, data_path='./', sparse=True):
+def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=None, model_df=None):
     m_file_path = os.path.join(data_path,"model")
     sparsity_file_path = os.path.join(data_path,"sparsity")
     m_file = os.path.join(m_file_path, model + ".csv")
     density_file = os.path.join(sparsity_file_path, model + ".csv")
-    df = pd.read_csv(m_file)
+    try:
+        df = pd.read_csv(m_file)
+    except:
+        df = model_df
     model_defs = df.to_numpy()
     batch_sizes = np.ones((len(model_defs), 1)) * batch_size
     model_defs = np.append(batch_sizes, model_defs, axis=1).astype(int)
 
     densities = np.ones((len(model_defs), 3), dtype=float)
-    if sparse:
+    try:
         try:
             df = pd.read_csv(density_file)
-            density_defs = df.to_numpy()
-            densities[:len(density_defs),:] = density_defs
         except:
-            print('[INFO]Use default dense analysis.')
+            df = sparsity_df
+        density_defs = df.to_numpy()
+        densities[:len(density_defs),:] = density_defs
+    except:
+        print('[INFO]Use default dense analysis.')
 
 
 
