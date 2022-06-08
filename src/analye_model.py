@@ -80,7 +80,7 @@ def analyze_model( use_attn_model=True,  custom_model='alexnet', attn_model='XLM
     else:
         model = custom_model
         model_df = read_model(model, data_path=data_path)
-    sparsity_df = create_sparsity_file(name=model, method=attn_method, data_path=data_path,  density=(density_input,density_weight,density_output), spattn_density=spattn_density, custom_sparsity=custom_sparsity)
+    sparsity_df = create_sparsity_file(num_layers=len(model_df), name=model, method=attn_method, data_path=data_path,  density=(density_input,density_weight,density_output), spattn_density=spattn_density, custom_sparsity=custom_sparsity)
     system = System(unit, mxu_shape = mxu_shape, compress_mem=compress_mem, skip_compute=skip_compute, onchip_mem_bw=onchip_mem_bw,
                     offchip_mem_bw=offchip_mem_bw, on_chip_mem_size=on_chip_mem_size,off_chip_mem_size=off_chip_mem_size,
                     compute_efficiency=compute_efficiency, memory_efficiency=memory_efficiency, flops=flops,

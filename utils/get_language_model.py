@@ -81,12 +81,10 @@ def get_configs(name):
         H = 16
         Df = 4*D
     return H, D, Df
-def create_sparsity_file(name='BERT', method='vanilla', data_path='./',  density=(1,1,1), spattn_density=1/16, custom_sparsity=False):
+def create_sparsity_file( num_layers, name='BERT', method='vanilla',data_path='./',  density=(1,1,1), spattn_density=1/16, custom_sparsity=False):
     sparsity_file_path = os.path.join(data_path,"sparsity")
     if custom_sparsity and os.path.exists(os.path.join(sparsity_file_path, name + '.csv')):
         return
-    model_path = os.path.join(data_path,"model")
-    num_layers = len(pd.read_csv(os.path.join(model_path, name + '.csv')))
     densities = np.ones((num_layers, 3), dtype=float) * np.array(density)
     if method == 'sparse':
         densities[3][2] = spattn_density  # logit output
@@ -125,5 +123,5 @@ def create_model(seq_len, name='BERT',  data_path='./', method='vanilla', low_ra
 if __name__ == '__main__':
     model = 'BERT'
     model_path = os.path.join('../',"data/model/language")
-    create_model(256, name=model, model_path=model_path)
-    create_sparsity_file('BERT_vanilla')
+    model_df = create_model(256, name=model, data_path=model_path)
+    create_sparsity_file(len(model_df), 'BERT_vanilla')
