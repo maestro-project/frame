@@ -5,19 +5,23 @@ This is a roofline cost model for DNN accelerators. We support CNNs, MLPs, and T
 * Given DNN accelerator system information (using the `System` class in `src/system.py`), where you can specify PE array shape (mxu_shape), on-chip BWs, off-chip BWs, etcs.
 * Given DNN workload (e.g., `model='vgg16'`)
 
-RAGS (using `get_model_df()`) generate a table of layer-wise latency and memory usage information as well as a roofline figure, as shown in the following
+``roofline-dnn`` generate a table of layer-wise latency and memory usage information as well as a roofline figure, as shown in the following
 ![img.png](images/img.png)
 ![img_1.png](images/img_1.png)
-
+---------
 # How to use it
-You are welcome to play with it by ``notebook/dnn_accel_playground.ipynb``.
 
-### Plug into you experiments
-Please use the ``analyze_model``. The paramaeters of it can be found in the following.
+### Interactive Design Space Exploration
+You are welcome to play with it by [``notebook/dnn_accel_playground.ipynb``](notebook/dnn_accel_playground.ipynb).
+
+### How to plug into you experiments
+Use the ``analyze_model``. 
 ```python
 model_df, _ = analyze_model()
 ```
-``model_df`` contains a layer-by-layer analysis results. 
+``model_df`` contains a layer-by-layer analysis results.
+The paramaeters of ``analyze_model``are described as follows.
+--------------
 
 # Algorithmic Parameters
 ### Basic Parameters
@@ -40,7 +44,7 @@ model_df, _ = analyze_model()
 * compress_mem: Set to True, if you want to model the fact of memory saving when model has sparsity. If set to False, then it would model the fact that model is saved in un-compressed format.
 * skip_compute: Set to True, if you want to model the fact of compute saving (by skipping 0 multiplication) when model has sparsity. If set to False, then it would model the fact that all the 0-multiplications are executed.
 * skip_compute_on_noopt_output: Set to True, if you want to model a more clever control which skip to computation when knowing the output is going to be ignored anyway. This would be effective when we are sparsifying the operation with masking the output. That is if we know the output is going to be masked anyway, we skip the computation.
-### Attention model-specific Parameter
+### Attention model -specific Parameter
 * attn_method: The attention method. You can choose from ``vanilla``, ``sparse`` (sparse transformer-like), ``lowrank`` (Linformer-like), ``kernel`` (Performer-like).
 * low_rank_ratio: The low rank projection ratio, if you pick ``lowrank`` method.
 * spattn_density: Sparse attention density, if you pick ``sparse`` method.
@@ -59,6 +63,23 @@ model_df, _ = analyze_model()
 * mxu_width: Width of PE array.
 * mxu_instance: Number of PE arrays.
     * These three parameters will creste ``mxu_instance`` of PE arrays. Each PE array has``mxu_height`` x ``mxu_width`` PEs. 
+  
+------
+### Contribution
+* Sheng-Chun (Felix) Kao
+* Suvinay Subramanian 
+* Abhimanyu Bambhaniya
+* Tushar Krishna
 
+### Citation
+```
+@software{Lisa_My_Research_Software_2017,
+  author = {Kao, Sheng-Chun and Subramanian, Suvinay and Bambhaniya, Abhimanyu and Krishna, Tushar},
+  title = {{Roofline-DNN: Roofline analysis of DNN accelerator}},
+  url = {https://github.com/maestro-project/roofline-dnn},
+  version = {1.0.0},
+  year = {2022}
+}
+```
 
 

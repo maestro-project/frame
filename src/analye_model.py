@@ -120,24 +120,6 @@ if __name__ == '__main__':
 
 
 
-    method = 'sparse'
-    low_rank_ratio = 1/8
-    m_ratio = 4
-    spattn_density = 0.1
-    seq_len = 256
-    batch_size = 4
-    model = 'BERT'
-    unit = Unit()
-    system = System(unit, mxu_shape = [4, 128, 128], compress_mem=True, skip_compute=True, skip_compute_on_noopt_output=True)
-    data_path = os.path.join(module_path,"data")
-    model_path = os.path.join(data_path,"model")
-    create_model(seq_len, name=model, data_path=data_path, low_rank_ratio=low_rank_ratio,
-                 m_ratio=m_ratio, method=method,
-                 to_tensorized=True)
-    model_name = model + f'_{method}'
-    create_sparsity_file(model_name,data_path=data_path,)
-    # model_name = 'resnet18'
-    model_df = get_model_df(model_name, system, unit, batch_size, data_path)
-    get_summary_table(model_df)
+    model_df = analyze_model()
     print(model_df)
 
