@@ -8,7 +8,8 @@ This is a roofline cost model for DNN accelerators. We support CNNs, MLPs, and T
 ``FRAME`` generate a table of layer-wise latency and memory usage information as well as a roofline figure, as shown in the following
 ![img.png](images/img.png)
 ![img_1.png](images/img_1.png)
----------
+
+
 # How to use it
 
 ### Interactive Design Space Exploration
@@ -24,9 +25,8 @@ model_df, _ = analyze_model()
 The parameters of ``analyze_model``are described as follows.
 
 
---------------
-
-# Algorithmic Parameters
+# Parameters
+## Algorithmic Parameters
 ### Basic Parameters
 * use_attn_model: Set to True if you want to use the pre-defined attention-based language model configuration that we provide.
 * attn_model: We proivide three sets of confiuration:``BERT``, ``XLA``, ``TrXL``.
@@ -53,7 +53,7 @@ The parameters of ``analyze_model``are described as follows.
 * spattn_density: Sparse attention density, if you pick ``sparse`` method.
 * m_ratio: The kernel approximation projection ratio, if you pick ``kernel`` method.
 * seq_len: Sequence length.
-# System Parameters
+## System Parameters
 * onchip_mem_bw: On-chip memory bandwidth (GB/s)
 * offchip_mem_bw: Off-chip memory bandwidth (GB/s)
 * flops: The compute capacity. Number of floating point operation per seconds. (TFLOPs/s)
