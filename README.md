@@ -1,4 +1,4 @@
-# FRAME: <u>F</u>ast <u>R</u>oofline <u>A</u>nalytical <u>M</u>odeling and <u>E</u>stimation
+# FRAME: <ins>F</ins>ast <ins>R</ins>oofline <ins>A</ins>nalytical <ins>M</ins>odeling and <ins>E</ins>stimation
 This is a roofline cost model for DNN accelerators. We support CNNs, MLPs, and Transformers workload.
 
 # What it does
