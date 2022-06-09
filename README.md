@@ -6,6 +6,7 @@ This is a roofline cost model for DNN accelerators. We support CNNs, MLPs, and T
 * Given DNN workload (e.g., `model='vgg16'`)
 
 ``FRAME`` generate a table of layer-wise latency and memory usage information as well as a roofline figure, as shown in the following
+
 ![img.png](images/img.png)
 ![img_1.png](images/img_1.png)
 
