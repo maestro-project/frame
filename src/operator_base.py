@@ -172,7 +172,7 @@ class Operator(object):
         return bits
 
 
-    def get_sz_list(self, system=None, index_mem=True):
+    def get_sz_list(self, system=None, index_mem=False):
         if system:
             if system.compress_mem:
                 sz_list = [sz * density for sz, density in zip(self.get_sz_list(), self.get_density_list())]
