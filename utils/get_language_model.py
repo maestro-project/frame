@@ -67,7 +67,7 @@ def get_lanugage_model_kernel(H, M, N, D, Df, m_ratio):
     return layers
 
 
-def get_configs(name):
+def get_configs(name='custom_attn', attn_config=None):
     if name == 'BERT':
         D = 768
         H = 12
@@ -80,7 +80,14 @@ def get_configs(name):
         D = 2048
         H = 16
         Df = 4*D
+    elif name == 'custom_attn':
+        default_attn_config = {'H': 16, 'D': 1024, 'Df': 4096}
+        attn_config = default_attn_config if attn_config is None else attn_config
+        D = attn_config['D']
+        H = attn_config['H']
+        Df = attn_config['Df']
     return H, D, Df
+
 def create_sparsity_file( num_layers, name='BERT', method='vanilla',data_path='./',  density=(1,1,1), spattn_density=1/16, custom_sparsity=False):
     sparsity_file_path = os.path.join(data_path,"sparsity")
     if custom_sparsity and os.path.exists(os.path.join(sparsity_file_path, name + '.csv')):
@@ -95,10 +102,10 @@ def create_sparsity_file( num_layers, name='BERT', method='vanilla',data_path='.
     return df
 
 def create_model(seq_len, name='BERT',  data_path='./', method='vanilla', low_rank_ratio=1/8, m_ratio=4, to_tensorized=False,
-                 tensorized_kernel=128):
+                 tensorized_kernel=128,attn_config=None):
 
     model_path = os.path.join(data_path,"model")
-    H, D, Df = get_configs(name)
+    H, D, Df = get_configs(name, attn_config)
     M = seq_len
     N = seq_len
     if method == 'vanilla':

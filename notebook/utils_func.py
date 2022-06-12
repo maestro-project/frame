@@ -21,7 +21,7 @@ from ipywidgets import interact, interactive, fixed, interact_manual, HBox, Labe
 import ipywidgets as widgets
 pd.set_option('display.float_format', lambda x: '%.2f' % x)
 
-def plot_model_func( use_attn_model=True,  custom_model='alexnet', attn_model='XLA', attn_method='vanilla', batch_size=1,
+def plot_model_func( use_attn_model=True, head=16, hidden_size=1024, ff_hidden_size=4096, custom_model='alexnet',attn_method='vanilla', batch_size=1,
                      low_rank_ratio=0.1, m_ratio=4, custom_sparsity=False,density_input=1, density_weight=1, density_output=1,
                      spattn_density=0.1, seq_len=512, onchip_mem_bw=9000, offchip_mem_bw=900, on_chip_mem_size=float('Inf'),
                      off_chip_mem_size=float('Inf'), compute_efficiency=1, memory_efficiency=1, use_flops=True, flops=123.20768,
@@ -30,7 +30,7 @@ def plot_model_func( use_attn_model=True,  custom_model='alexnet', attn_model='X
     args = locals()
     model_df, (system, unit) = analyze_model(**args)
     if use_attn_model:
-        model = attn_model
+        model = 'custom_attn'
         model = model + f'_{attn_method}'
     else:
         model = custom_model
@@ -42,7 +42,7 @@ def plot_model_func( use_attn_model=True,  custom_model='alexnet', attn_model='X
     print(f'==============Layer-wise Roofline==================')
     dot_roofline(model_df, system, unit)
 
-plot_model = interactive(plot_model_func, attn_model=['XLM','BERT', 'TrXL'],
+plot_model = interactive(plot_model_func,
                          attn_method=['vanilla', 'sparse', 'lowrank', 'kernel'],
                          batch_size=widgets.IntSlider(min=1, max=2**12, step=1, value=1,style = {'description_width': 'initial'}),
                          mxu_instance=widgets.IntSlider(min=1, max=1024, step=1, value=4,style = {'description_width': 'initial'}),
@@ -69,6 +69,9 @@ plot_model = interactive(plot_model_func, attn_model=['XLM','BERT', 'TrXL'],
                          use_attn_model=True,
                          custom_sparsity=False,
                          custom_model=widgets.Dropdown(options=['custom', 'alexnet', 'densenet', 'googlenet', 'mnasnet', 'mobilenet_v2', 'resnet_18', 'resnet_50', 'resnext50_32x4d','shufflenet_v2', 'squeezenet', 'vgg16', 'wide_resnet50'], value='alexnet', style={'description_width': 'initial'},),
+                         head=widgets.IntSlider(min=1, max=36, step=1, value=16,style = {'description_width': 'initial'}),
+                         hidden_size=widgets.IntSlider(min=1, max=2**14, step=1, value=1024,style = {'description_width': 'initial'}),
+                         ff_hidden_size=widgets.IntSlider(min=1, max=2**16, step=1, value=4096,style = {'description_width': 'initial'}),
                          )
 
 

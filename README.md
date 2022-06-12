@@ -30,9 +30,9 @@ The parameters of ``analyze_model``are described as follows.
 ## Algorithmic Parameters
 ### Basic Parameters
 * use_attn_model: Set to True if you want to use the pre-defined attention-based language model configuration that we provide.
-* attn_model: We proivide three sets of confiuration:``BERT``, ``XLA``, ``TrXL``.
+* head, hidden_size, ff_hidden_size: If ``use_attn_model`` == False, these variable will be ignored. ``head``:number of head. ``hidden_size``: hidden_size of key/query/value projection. ``ff_hidden_size``: hiddden_size of the feedforward layers 
 * custom_model: If you don't want to use the pre-defined bert model
-  1. Set ``use_bert_model`` to False 
+  1. Set ``use_attn_model`` to False 
     2. Set ``custom_model`` to ``custom``
    3.  Create a ``custom.csv`` model configuration in ``data/model``. You can use ``data/model/alexnet.csv`` as an template.
 * batch_size: Batch size

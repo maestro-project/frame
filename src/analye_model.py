@@ -62,7 +62,7 @@ def analysis_model(model_dims, system, unit, densities):
     # df.to_csv('output/trial.csv')
     return df
 
-def analyze_model( use_attn_model=True,  custom_model='alexnet', attn_model='XLM', attn_method='vanilla', batch_size=1,
+def analyze_model( use_attn_model=True, head=16, hidden_size=1024, ff_hidden_size=4096, custom_model='alexnet',  attn_method='vanilla', batch_size=1,
                    low_rank_ratio=0.1, m_ratio=4, custom_sparsity=False,density_input=1, density_weight=1, density_output=1,
                    spattn_density=0.1, seq_len=512, onchip_mem_bw=9000, offchip_mem_bw=900, on_chip_mem_size=float('Inf'),
                    off_chip_mem_size=float('Inf'), compute_efficiency=1, memory_efficiency=1, use_flops=True, flops=123.20768,
@@ -73,9 +73,9 @@ def analyze_model( use_attn_model=True,  custom_model='alexnet', attn_model='XLM
     data_path = os.path.abspath(os.path.join(module_path,"data"))
     model_path = os.path.join(data_path,"model")
     if use_attn_model:
-        model = attn_model
+        model = 'custom_attn'
         model_df = create_model(seq_len, name=model, data_path=data_path, low_rank_ratio=low_rank_ratio,
-                          m_ratio=m_ratio, method=attn_method,)
+                          m_ratio=m_ratio, method=attn_method, attn_config={'H': head, 'D': hidden_size, 'Df': ff_hidden_size})
         model = model + f'_{attn_method}'
     else:
         model = custom_model
