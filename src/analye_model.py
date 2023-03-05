@@ -85,7 +85,7 @@ def analyze_model( use_attn_model=True, head=16, hidden_size=1024, ff_hidden_siz
                     offchip_mem_bw=offchip_mem_bw, on_chip_mem_size=on_chip_mem_size,off_chip_mem_size=off_chip_mem_size,
                     compute_efficiency=compute_efficiency, memory_efficiency=memory_efficiency, flops=flops,
                     frequency=frequency, bits=bits, skip_compute_on_noopt_output=skip_compute_on_noopt_output)
-    model_df = get_model_df(model, system, unit, batch_size, data_path, sparsity_df=sparsity_df, model_df=model_df )
+    model_df = get_model_df(model, system, unit, batch_size, data_path, sparsity_df=sparsity_df, model_df=model_df , sparse=True)
 
     return model_df, (system, unit)
 
@@ -95,7 +95,7 @@ def read_model(model,  data_path='./',):
     df = pd.read_csv(m_file)
     return df
 
-def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=None, model_df=None):
+def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=None, model_df=None, sparse= False):
     m_file_path = os.path.join(data_path,"model")
     sparsity_file_path = os.path.join(data_path,"sparsity")
     m_file = os.path.join(m_file_path, model + ".csv")
@@ -110,12 +110,13 @@ def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=
 
     densities = np.ones((len(model_defs), 3), dtype=float)
     try:
-        try:
-            df = pd.read_csv(density_file)
-        except:
-            df = sparsity_df
-        density_defs = df.to_numpy()
-        densities[:len(density_defs),:] = density_defs
+        if(sparse):
+            try:
+                df = pd.read_csv(density_file)
+            except:
+                df = sparsity_df
+            density_defs = df.to_numpy()
+            densities[:len(density_defs),:] = density_defs
     except:
         print('[INFO]Use default dense analysis.')
 
