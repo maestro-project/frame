@@ -13,6 +13,8 @@ from src.operators import *
 import src.operators
 from src.operator_base import op_type_dicts
 from src.system import System
+from utils.display_and_plots import *
+
 import pandas as pd
 from src.analye_model import *
 import matplotlib.pyplot as plt
@@ -32,11 +34,12 @@ def plot_model_func( use_attn_model=True, head=16, hidden_size=1024, ff_hidden_s
     if use_attn_model:
         model = 'custom_attn'
         model = model + f'_{attn_method}'
+        print('Since using Attn Model, Ignoring the custom model argument')
     else:
         model = custom_model
     summary_df = get_summary_table(model_df)
     print(f'=========={model} Layer-by-Layer Performance=======')
-    display(model_df)
+    display_df(model_df)
     print(f'============Model-wise Summary=====================')
     display(summary_df)
     print(f'==============Layer-wise Roofline==================')
@@ -68,34 +71,10 @@ plot_model = interactive(plot_model_func,
                          use_flops=True,
                          use_attn_model=True,
                          custom_sparsity=False,
-                         custom_model=widgets.Dropdown(options=['custom', 'alexnet', 'densenet', 'googlenet', 'mnasnet', 'mobilenet_v2', 'resnet_18', 'resnet_50', 'resnext50_32x4d','shufflenet_v2', 'squeezenet', 'vgg16', 'wide_resnet50'], value='alexnet', style={'description_width': 'initial'},),
+                         custom_mode=widgets.Dropdown(options=['custom', 'alexnet', 'densenet', 'googlenet', 'mnasnet', 'mobilenet_v2', 'resnet_18', 'resnet_50', 'resnext50_32x4d','shufflenet_v2', 'squeezenet', 'vgg16', 'wide_resnet50'], value='alexnet', style={'description_width': 'initial'},),
                          head=widgets.IntSlider(min=1, max=36, step=1, value=16,style = {'description_width': 'initial'}),
                          hidden_size=widgets.IntSlider(min=1, max=2**14, step=1, value=1024,style = {'description_width': 'initial'}),
                          ff_hidden_size=widgets.IntSlider(min=1, max=2**16, step=1, value=4096,style = {'description_width': 'initial'}),
                          )
 
 
-def plot_roofline_background(system, unit, max_x):
-    op_intensity = system.flops/system.offchip_mem_bw
-    flops = unit.raw_to_unit(system.flops, type='C')
-    max_x = max(max_x, op_intensity*2.5)
-    turning_points = [[0, 0], [op_intensity, flops], [max_x, flops]]
-    turning_points = np.array(turning_points)
-    plt.plot(turning_points[:,0], turning_points[:,1], c='grey')
-
-    op_intensity = system.flops/system.onchip_mem_bw
-    flops = unit.raw_to_unit(system.flops, type='C')
-    turning_points = [[0, 0], [op_intensity, flops], [max_x, flops]]
-    turning_points = np.array(turning_points)
-    plt.plot(turning_points[:,0], turning_points[:,1], '--', c='grey')
-
-    plt.xlabel('Op Intensity (FLOPs/Byte)')
-    plt.ylabel(f'{unit.unit_compute.upper()}')
-
-def dot_roofline(df, system, unit):
-    max_x = max(df['Op Intensity'])
-    plot_roofline_background(system, unit, max_x)
-    for i in range(len(df)):
-        op_intensity = df.loc[i, 'Op Intensity']
-        thrpt = df.loc[i, 'Throughput (Tflops)']
-        plt.scatter(op_intensity, thrpt)
