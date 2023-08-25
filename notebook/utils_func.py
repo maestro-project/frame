@@ -25,7 +25,7 @@ pd.set_option('display.float_format', lambda x: '%.2f' % x)
 
 def plot_model_func( use_attn_model=True, head=16, hidden_size=1024, ff_hidden_size=4096, custom_model='alexnet',attn_method='vanilla', batch_size=1,
                      low_rank_ratio=0.1, m_ratio=4, custom_sparsity=False,density_input=1, density_weight=1, density_output=1,
-                     spattn_density=0.1, seq_len=512, onchip_mem_bw=9000, offchip_mem_bw=900, on_chip_mem_size=float('Inf'),
+                     spattn_density=0.1, seq_len=512, FLAT_enabled = False, onchip_mem_bw=9000, offchip_mem_bw=900, on_chip_mem_size=float('Inf'),
                      off_chip_mem_size=float('Inf'), compute_efficiency=1, memory_efficiency=1, use_flops=True, flops=123.20768,
                      mxu_instance=4, mxu_height=128, mxu_width=128, frequency=940, bits='bf16', skip_compute_on_noopt_output=True,
                      compress_mem=False, skip_compute=False):
@@ -55,6 +55,7 @@ plot_model = interactive(plot_model_func,
                          m_ratio=widgets.IntSlider(min=1, max=16, step=1, value=4,style = {'description_width': 'initial'}),
                          spattn_density=widgets.FloatSlider(min=1e-5, max=1.0, step=1e-5, value=1,style = {'description_width': 'initial'}),
                          seq_len=widgets.IntSlider(min=1, max=2**16, step=1, value=512,style = {'description_width': 'initial'}),
+                         FLAT_enabled=widgets.Checkbox(value=True, style = {'description_width': 'initial'}),
                          density_input=widgets.FloatSlider(min=1e-5, max=1.0, step=1e-5,value=1,style = {'description_width': 'initial'}),
                          density_weight=widgets.FloatSlider(min=1e-5, max=1.0, step=1e-5,value=1,style = {'description_width': 'initial'}),
                          density_output=widgets.FloatSlider(min=1e-5, max=1.0, step=1e-5,value=1,style = {'description_width': 'initial'}),

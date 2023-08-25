@@ -29,6 +29,12 @@ def get_summary_table(df):
     total_latencies = np.sum(df['Latency (msec)'])
     attn_idx = get_attn_index(df)
     total_parameters = np.sum(df['Input_w (MB)']) - sum([df.loc[i, 'Input_w (MB)'] for i in attn_idx])
+    total_data = np.sum(df['Input_a (MB)'] + df['Input_w (MB)'] + df['Output (MB)']) 
+    total_MACS = np.sum(df['Num ops (MFLOP)'])
+    total_weights = 0; 
+    for i in range(len(df)):
+        if (df.loc[i, 'Op Type'] != 'Logit' or df.loc[i, 'Op Type'] != 'Attend'):
+           total_weights = total_weights + df.loc[i,'Input_w (MB)'] 
     max_memory_footprint = max([df.loc[i, 'Input_a (MB)'] + df.loc[i, 'Input_w (MB)'] + df.loc[i, 'Output (MB)'] for i in range(len(df))])
     # total_energy = np.sum(df['Total energy (uJ)'])
     # total_original_energy = np.sum(df['MXU energy (uJ)'])
@@ -36,6 +42,9 @@ def get_summary_table(df):
     ret = {
         'Latency (msec)': [total_latencies],
         'Cycles': [total_cycles],
+        'MACs (MFLOPS)': [total_MACS],
+        'Total Data (MB)': [total_data],
+        'Total Weights (MB)': [total_weights],
         'Parameters  (MB)': [total_parameters],
         'On-chip Memory Footprint (MB)': [max_memory_footprint],
         # 'Energy  (uJ)': [total_energy],
@@ -43,12 +52,17 @@ def get_summary_table(df):
     }
     return pd.DataFrame.from_dict(ret)
 
-def analysis_model(model_dims, system, unit, densities):
+def analysis_model(model_dims, system, unit, densities, FLAT_enabled=False):
     roofline_list = []
     for i, (dim, density) in enumerate(zip(model_dims, densities)):
         type = op_type_dicts[dim[-1]]
         operator = getattr(operators, type)
         operator_instance = operator(dim=dim, density=density)
+        if (FLAT_enabled):
+            if(type == 'Logit'):
+                operator_instance.set_mem_pin(output='on')
+            elif(type == 'Attend'):
+                operator_instance.set_mem_pin(input_a='on')
         roofline = operator_instance.get_roofline(system=system, unit=unit)
         if i==0:
             column = roofline.keys()
@@ -56,7 +70,7 @@ def analysis_model(model_dims, system, unit, densities):
 
     # pd.set_option("precision", 3)
     # pd.set_option('display.float_format', lambda x: '%.3f' % x)
-    df = pd.DataFrame(np.array(roofline_list), columns=column)
+    df = pd.DataFrame(np.array(roofline_list,dtype=object), columns=column, dtype=object)
 
     # df.style.format('{:.2f}')
     # df.to_csv('output/trial.csv')
@@ -64,7 +78,7 @@ def analysis_model(model_dims, system, unit, densities):
 
 def analyze_model( use_attn_model=True, head=16, hidden_size=1024, ff_hidden_size=4096, custom_model='alexnet',  attn_method='vanilla', batch_size=1,
                    low_rank_ratio=0.1, m_ratio=4, custom_sparsity=False,density_input=1, density_weight=1, density_output=1,
-                   spattn_density=0.1, seq_len=512, onchip_mem_bw=9000, offchip_mem_bw=900, on_chip_mem_size=float('Inf'),
+                   spattn_density=0.1, seq_len=512, FLAT_enabled = False, onchip_mem_bw=9000, offchip_mem_bw=900, on_chip_mem_size=float('Inf'),
                    off_chip_mem_size=float('Inf'), compute_efficiency=1, memory_efficiency=1, use_flops=True, flops=123.20768,
                    mxu_instance=4, mxu_height=128, mxu_width=128, frequency=940, bits='bf16', skip_compute_on_noopt_output=True,
                    compress_mem=False, skip_compute=False):
@@ -77,6 +91,7 @@ def analyze_model( use_attn_model=True, head=16, hidden_size=1024, ff_hidden_siz
         model_df = create_model(seq_len, name=model, data_path=data_path, low_rank_ratio=low_rank_ratio,
                           m_ratio=m_ratio, method=attn_method, attn_config={'H': head, 'D': hidden_size, 'Df': ff_hidden_size})
         model = model + f'_{attn_method}'
+        print('Since using Attn Model, Ignoring the custom model argument')
     else:
         model = custom_model
         model_df = read_model(model, data_path=data_path)
@@ -85,7 +100,7 @@ def analyze_model( use_attn_model=True, head=16, hidden_size=1024, ff_hidden_siz
                     offchip_mem_bw=offchip_mem_bw, on_chip_mem_size=on_chip_mem_size,off_chip_mem_size=off_chip_mem_size,
                     compute_efficiency=compute_efficiency, memory_efficiency=memory_efficiency, flops=flops,
                     frequency=frequency, bits=bits, skip_compute_on_noopt_output=skip_compute_on_noopt_output)
-    model_df = get_model_df(model, system, unit, batch_size, data_path, sparsity_df=sparsity_df, model_df=model_df , sparse=True)
+    model_df = get_model_df(model, system, unit, batch_size, data_path, sparsity_df=sparsity_df, model_df=model_df , sparse=True, FLAT_enabled= FLAT_enabled)
 
     return model_df, (system, unit)
 
@@ -95,7 +110,7 @@ def read_model(model,  data_path='./',):
     df = pd.read_csv(m_file)
     return df
 
-def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=None, model_df=None, sparse= False):
+def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=None, model_df=None, sparse= False, FLAT_enabled=False):
     m_file_path = os.path.join(data_path,"model")
     sparsity_file_path = os.path.join(data_path,"sparsity")
     m_file = os.path.join(m_file_path, model + ".csv")
@@ -122,7 +137,7 @@ def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=
 
 
 
-    model_df  = analysis_model(model_defs, system, unit, densities)
+    model_df  = analysis_model(model_defs, system, unit, densities, FLAT_enabled)
     return model_df
 
 
