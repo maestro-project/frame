@@ -86,6 +86,11 @@ def get_configs(name='custom_attn', attn_config=None):
         D = attn_config['D']
         H = attn_config['H']
         Df = attn_config['Df']
+    else:
+        D = 1024
+        H = 16
+        Df = 4*D
+
     return H, D, Df
 
 def create_sparsity_file( num_layers, name='BERT', method='vanilla',data_path='./',  density=(1,1,1), spattn_density=1/16, custom_sparsity=False):
