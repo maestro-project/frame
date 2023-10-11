@@ -233,18 +233,18 @@ class Operator(object):
         return onchip_mem_occupancy
 
     def get_roofline(self, system, unit):
-        ideal_compute_time = self.get_ideal_compute_time(system=system)
-        ideal_complete_offchip_time, ideal_complete_onchip_time = self.get_ideal_memory_time(system=system)
+        # ideal_compute_time = self.get_ideal_compute_time(system=system)
+        # ideal_complete_offchip_time, ideal_complete_onchip_time = self.get_ideal_memory_time(system=system)
         # x2 for ops -> float ops
         num_ops = self.get_effective_num_ops(system) * 2
         num_data = self.get_effective_num_data(system) * system.get_bit_multiplier(type='M')
         op_intensity = num_ops/num_data
 
-        ideal_exec_time_complete_offchip = max(ideal_compute_time, ideal_complete_offchip_time)
-        ideal_exec_time_complete_onchip = max(ideal_compute_time, ideal_complete_onchip_time)
+        # ideal_exec_time_complete_offchip = max(ideal_compute_time, ideal_complete_offchip_time)
+        # ideal_exec_time_complete_onchip = max(ideal_compute_time, ideal_complete_onchip_time)
 
-        ideal_thrpt_complete_offchip = num_ops/ideal_exec_time_complete_offchip
-        ideal_thrpt_complete_onchip = num_ops/ideal_exec_time_complete_onchip
+        # ideal_thrpt_complete_offchip = num_ops/ideal_exec_time_complete_offchip
+        # ideal_thrpt_complete_onchip = num_ops/ideal_exec_time_complete_onchip
 
         compute_time, compute_efficiency = self.get_compute_time(system=system)
         mxu_energy, power_gated_mxu_energy = self.get_mxu_energy(system=system)
@@ -277,8 +277,8 @@ class Operator(object):
             f'Output ({unit.unit_mem})': unit.raw_to_unit(output_size, type='M'),
             f'Total Data ({unit.unit_mem})': unit.raw_to_unit(sum(self.get_sz_list(system)), type='M'),
             f'Throughput ({unit.unit_compute})': unit.raw_to_unit(thrpt, type='C'),
-            f'Roofline Throughput offchip ({unit.unit_compute})': unit.raw_to_unit(ideal_thrpt_complete_offchip, type='C'),
-            f'Roofline Throughput onchip ({unit.unit_compute})': unit.raw_to_unit(ideal_thrpt_complete_onchip, type='C'),
+            # f'Roofline Throughput offchip ({unit.unit_compute})': unit.raw_to_unit(ideal_thrpt_complete_offchip, type='C'),
+            # f'Roofline Throughput onchip ({unit.unit_compute})': unit.raw_to_unit(ideal_thrpt_complete_onchip, type='C'),
             f'Compute Cycles': compute_time*system.frequency,
             f'Memory Cycles': memory_time*system.frequency,
             # f'MXU energy (uJ)': mxu_energy *1e6,

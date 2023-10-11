@@ -2,7 +2,7 @@ import os, sys
 script_dir = os.path.dirname(__file__)
 module_path = script_dir
 for _ in range(5):
-    if os.path.basename(module_path) =='frame':
+    if os.path.basename(module_path).lower() =='frame':
         break
     module_path = os.path.abspath(os.path.join(module_path, '../'))
     if module_path not in sys.path:
@@ -115,6 +115,8 @@ def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=
     sparsity_file_path = os.path.join(data_path,"sparsity")
     m_file = os.path.join(m_file_path, model + ".csv")
     density_file = os.path.join(sparsity_file_path, model + ".csv")
+    if model is not None:
+        assert os.path.exists(m_file), f"File {m_file} should exists."
     try:
         df = pd.read_csv(m_file)
     except:
