@@ -147,9 +147,12 @@ def get_model_df(model, system, unit, batch_size=1, data_path='./',
     if 'scale' in analysis_mode.lower():
         _, batch_list =change_F_to_S(m_file, output_file='./test.csv')
 
+        # if user_config is None:
+        create_scale_sim_config_file(system=system, output_file_name="./config.cfg")
+
         scalesim_results = run_scale_sim(topology_filename="./test.csv", 
-                system_config="/Users/abhimanyu/Work/Dive/Scale-sim/configs/scale.cfg", verbose=True)
-        os.remove('./test.csv')
+                system_config="./config.cfg", verbose=True)
+        # os.remove('./test.csv')
         scalesim_cycles = [a * b * batch_size for a, b in zip(batch_list, scalesim_results)]
 
         

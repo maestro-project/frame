@@ -2,7 +2,7 @@ import pandas as pd
 
 def change_F_to_S(input_file, output_file='./test.csv'):
     ''' Converts Csv used in Frame to scale-sim pattern for Convolutions'''
-    operator_list = pd.read_csv("/Users/abhimanyu/Work/Dive/Frame/data/model/custom_attn_vanilla.csv").values.tolist()  
+    operator_list = pd.read_csv(input_file).values.tolist()  
     out_operator_list = []
     out_batch_list = []
     for i,in_op in enumerate(operator_list):

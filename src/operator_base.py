@@ -101,6 +101,7 @@ class Operator(object):
         if system.mxu_shape is not None:
             mxu_mapping, _ = self.get_effective_mxu_mapping(system)
             effective_mxu_shape = self.get_effective_mxu_shape(system.mxu_shape)
+            # print(mxu_mapping, effective_mxu_shape)
             _ , compute_efficiency = self.get_compute_efficiency(effective_mxu_shape, mxu_mapping)
         elif(system.accelerator_type=="unstructured" and (self.density_a*self.density_w*self.density_o < 1) and system.treat_as_dense == False):
             compute_efficiency = system.unstructured_efficiency

@@ -2,7 +2,7 @@ import numpy as np
 import math
 from src.unit import Unit
 class System(object):
-    compute_multiplier = {'int8': 1, 'bf16': 1, 'f32': 2, 'int4': 1, 'int2':1}
+    compute_multiplier = {'int8': 0.5, 'bf16': 1, 'f32': 2, 'int4': 0.25, 'int2':0.25}
     mem_multiplier = {'int8': 1, 'bf16': 2, 'f32': 4, 'int4':0.5, 'int2':0.25}
     def __init__(self, unit=None, onchip_mem_bw=18000, offchip_mem_bw=900, external_mem_bw=100, 
                  on_chip_mem_size=float('Inf'), off_chip_mem_size=float('Inf'),
