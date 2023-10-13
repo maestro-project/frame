@@ -26,7 +26,11 @@ def dot_roofline(df, system, unit = None):
     for i in range(len(df)):
         op_intensity = df.loc[i, 'Op Intensity']
         thrpt = df.loc[i, 'Throughput (Tflops)']
-        plt.scatter(op_intensity, thrpt)
+        plt.scatter(op_intensity, thrpt, marker='o', label='Frame-'+str(i))
+        if 'Scale Sim Thrpt (Tflops)' in df.columns:
+           ss_thrpt = df.loc[i, 'Scale Sim Thrpt (Tflops)']
+           plt.scatter(op_intensity, ss_thrpt, marker='^', label='Scale-Sim-'+str(i)) 
+    plt.legend(loc='lower right')
 
 def color_bound_type(value):
     if value == 'M':
@@ -46,10 +50,12 @@ def highlight_max_cycles(s):
 
 def display_df(df):
     ## Adding % of total time for each operation
-    total_cycles = np.sum(df['Cycles'])
-    for i in range(len(df)):
-        df.loc[i, '% of total time'] = 100*df.loc[i,'Cycles']/total_cycles
-
+    try:
+        total_cycles = np.sum(df['Cycles'])
+        for i in range(len(df)):
+            df.loc[i, '% of total time'] = 100*df.loc[i,'Cycles']/total_cycles
+    except:
+        pass
     ## reducing display precision
     pd.set_option("display.precision", 3)
 

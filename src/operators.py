@@ -40,6 +40,7 @@ class CONV2D(Operator):
         input_a = (B, C, Y, X)
         input_w = (K, C, R, S)
         output = (B, K, Y, X)
+
         return input_a, input_w, output
 
     def get_gemms(self):
@@ -53,7 +54,9 @@ class CONV2D(Operator):
 
     def get_num_ops(self):
         B, K, C, Y, X, R, S = self.dim[:self.get_effective_dim_len()]
-        return np.prod([B, K, C, Y, X, R, S])
+        ofmap_h = Y - R + 1
+        ofmap_w = X - S + 1
+        return np.prod([B, K, C, ofmap_h, ofmap_w, R, S])
 
 class GEMM(Operator):
     def __init__(self, dim, density):

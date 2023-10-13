@@ -16,6 +16,9 @@ from src.system import System
 import pandas as pd
 import os
 from utils.get_language_model import *
+from src.scale_sim_utils.scalesim_api import *
+from src.scale_sim_utils.topology_generator import *
+from src.scale_sim_utils.system_config_generator import *
 
 def get_attn_index(df):
     ret = []
@@ -110,7 +113,9 @@ def read_model(model,  data_path='./',):
     df = pd.read_csv(m_file)
     return df
 
-def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=None, model_df=None, sparse= False, FLAT_enabled=False):
+def get_model_df(model, system, unit, batch_size=1, data_path='./',
+                sparsity_df=None, model_df=None, sparse= False, FLAT_enabled=False,
+                analysis_mode="Scale-sim"):
     m_file_path = os.path.join(data_path,"model")
     sparsity_file_path = os.path.join(data_path,"sparsity")
     m_file = os.path.join(m_file_path, model + ".csv")
@@ -123,6 +128,7 @@ def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=
         df = model_df
     model_defs = df.to_numpy()
     batch_sizes = np.ones((len(model_defs), 1)) * batch_size
+    #TODO: Change here to have the layer name in the csv file.
     model_defs = np.append(batch_sizes, model_defs, axis=1).astype(int)
 
     densities = np.ones((len(model_defs), 3), dtype=float)
@@ -136,10 +142,20 @@ def get_model_df(model, system, unit, batch_size=1, data_path='./', sparsity_df=
             densities[:len(density_defs),:] = density_defs
     except:
         print('[INFO]Use default dense analysis.')
-
-
-
+    
     model_df  = analysis_model(model_defs, system, unit, densities, FLAT_enabled)
+    if 'scale' in analysis_mode.lower():
+        _, batch_list =change_F_to_S(m_file, output_file='./test.csv')
+
+        scalesim_results = run_scale_sim(topology_filename="./test.csv", 
+                system_config="/Users/abhimanyu/Work/Dive/Scale-sim/configs/scale.cfg", verbose=True)
+        os.remove('./test.csv')
+        scalesim_cycles = [a * b * batch_size for a, b in zip(batch_list, scalesim_results)]
+
+        
+
+        model_df['Scale Sim Cycles'] = scalesim_cycles
+        model_df['Scale Sim Thrpt (Tflops)'] = model_df['Throughput (Tflops)'] * model_df['Cycles'] / model_df['Scale Sim Cycles']
     return model_df
 
 

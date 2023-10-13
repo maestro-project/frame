@@ -102,10 +102,13 @@ class Operator(object):
             mxu_mapping, _ = self.get_effective_mxu_mapping(system)
             effective_mxu_shape = self.get_effective_mxu_shape(system.mxu_shape)
             _ , compute_efficiency = self.get_compute_efficiency(effective_mxu_shape, mxu_mapping)
+        elif(system.accelerator_type=="unstructured" and (self.density_a*self.density_w*self.density_o < 1) and system.treat_as_dense == False):
+            compute_efficiency = system.unstructured_efficiency
         else:
             compute_efficiency = 1
+        compute_efficiency = min(1,compute_efficiency)      ## Max efficiency is 1.0
         return self.get_effective_num_ops(system) * system.get_bit_multiplier(type='C')/system.op_per_sec / compute_efficiency, compute_efficiency
-
+    
     def get_mxu_energy(self, system):
         if system.mxu_shape is not None:
             mxu_mapping, streaming_dim = self.get_effective_mxu_mapping(system)
@@ -154,9 +157,9 @@ class Operator(object):
     def get_effective_num_ops(self, system):
         if system.skip_compute:
             if system.skip_compute_on_noopt_output:
-                return self.get_num_ops() * self.density_w * self.density_a *self.density_o
+                return self.get_num_ops() * min(ceil((self.density_w * self.density_a * self.density_o) /system.pe_min_density_support) * system.pe_min_density_support ,1.0)
             else:
-                return self.get_num_ops() * self.density_w * self.density_a
+                return self.get_num_ops() * min( ceil((self.density_w * self.density_a) /system.pe_min_density_support) * system.pe_min_density_support , 1.0)
         else:
             return  self.get_num_ops()
 

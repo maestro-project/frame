@@ -1,0 +1,5 @@
+Layer Name,IFMAP height,IFMAP width,Filter height,Filter width,Channels,Num filters,Stride, 
+GEMM-0,768,768,1,768,1,128,1,
+Logit-1,128,128,1,128,1,128,1,
+Attend-2,128,128,1,128,1,128,1,
+GEMM-3,3072,768,1,768,1,128,1,
